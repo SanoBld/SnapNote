@@ -24,9 +24,9 @@ public sealed partial class MainWindow : Window
 {
     // ── Chemins ──────────────────────────────────────────────────────────────
     private static readonly string NoteDir =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SnapNote");
-    private static readonly string DefaultNotePath = Path.Combine(NoteDir, "note.rtf");
+        System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SnapNote");
 
+    private static readonly string DefaultNotePath = System.IO.Path.Combine(NoteDir, "note.rtf");
     // ══════════════════════════════════════════════════════════════════════════
     //  MODÈLE ONGLET
     // ══════════════════════════════════════════════════════════════════════════

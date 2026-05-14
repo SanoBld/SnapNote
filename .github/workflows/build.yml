@@ -1,0 +1,29 @@
+name: Build SnapNote EXE
+
+on:
+  push:
+    branches: [ "main", "master" ] # Se lance à chaque fois que tu envoies du code
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x # Adapté à ton projet .NET 8
+
+    - name: Restaurer les paquets
+      run: dotnet restore
+
+    - name: Compiler en un seul EXE
+      run: dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true
+
+    - name: Créer le lien de téléchargement
+      uses: actions/upload-artifact@v4
+      with:
+        name: SnapNote-Application
+        path: bin/Release/net8.0-windows*/win-x64/publish/*.exe

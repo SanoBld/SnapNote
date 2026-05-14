@@ -41,7 +41,7 @@ public sealed partial class MainWindow : Window
         public TextBlock   TitleLbl   { get; set; } = null!;
         public Rectangle   Indicator  { get; set; } = null!; // barre accent en bas
 
-        public string Title        => FilePath is null ? "Sans titre" : Path.GetFileNameWithoutExtension(FilePath);
+        public string Title => FilePath is null ? "Sans titre" : System.IO.Path.GetFileNameWithoutExtension(FilePath);
         public string DisplayTitle => IsModified ? Title + " ●" : Title;
     }
 

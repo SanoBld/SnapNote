@@ -33,13 +33,13 @@ public sealed partial class MainWindow : Window
 
     private sealed class NoteTab
     {
-        public string?     FilePath   { get; set; }
-        public bool        IsDefault  { get; set; }
-        public bool        IsModified { get; set; }
-        public RichEditBox Editor     { get; set; } = null!;
-        public Button      TabBtn     { get; set; } = null!;
-        public TextBlock   TitleLbl   { get; set; } = null!;
-        public Rectangle   Indicator  { get; set; } = null!; // barre accent en bas
+        public string? FilePath { get; set; }
+        public bool IsDefault { get; set; }
+        public bool IsModified { get; set; }
+        public RichEditBox Editor { get; set; } = null!;
+        public Button TabBtn { get; set; } = null!;
+        public TextBlock TitleLbl { get; set; } = null!;
+        public Rectangle Indicator { get; set; } = null!;
 
         public string Title => FilePath is null ? "Sans titre" : System.IO.Path.GetFileNameWithoutExtension(FilePath);
         public string DisplayTitle => IsModified ? Title + " ●" : Title;

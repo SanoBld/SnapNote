@@ -20,8 +20,9 @@ jobs:
     - name: Restaurer les paquets
       run: dotnet restore SnapNote.csproj
 
-    - name: Compilation Unique EXE
-      run: dotnet publish SnapNote.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true /p:Configuration=Release /p:Platform=x64
+    - name: Compilation
+      # PublishSingleFile retiré — incompatible avec WinUI 3 / Windows App SDK
+      run: dotnet publish SnapNote.csproj -c Release -r win-x64 --self-contained true /p:PublishReadyToRun=true /p:Configuration=Release /p:Platform=x64
 
     - name: Créer le lien de téléchargement
       uses: actions/upload-artifact@v4

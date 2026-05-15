@@ -1,14 +1,16 @@
-name: Build SnapNote EXE
+name: Build SnapNote MSIX
 on:
   push:
     branches: [ "main", "master" ]
+
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -17,15 +19,51 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
+    - name: Créer un certificat auto-signé
+      run: |
+        $cert = New-SelfSignedCertificate `
+          -Subject "CN=SnapNote" `
+          -CertStoreLocation "Cert:\CurrentUser\My" `
+          -Type CodeSigningCert `
+          -KeyUsage DigitalSignature
+        $pwd = ConvertTo-SecureString -String "SnapNote123!" -Force -AsPlainText
+        Export-PfxCertificate -Cert $cert -FilePath "$env:RUNNER_TEMP\SnapNote.pfx" -Password $pwd
+        echo "CERT_THUMBPRINT=$($cert.Thumbprint)" >> $env:GITHUB_ENV
+      shell: pwsh
+
     - name: Restaurer les paquets
       run: dotnet restore SnapNote.csproj
 
-    - name: Compilation
-      # PublishSingleFile retiré — incompatible avec WinUI 3 / Windows App SDK
-      run: dotnet publish SnapNote.csproj -c Release -r win-x64 --self-contained true /p:PublishReadyToRun=true /p:Configuration=Release /p:Platform=x64
+    - name: Build MSIX
+      run: |
+        msbuild SnapNote.csproj `
+          /p:Configuration=Release `
+          /p:Platform=x64 `
+          /p:AppxBundle=Never `
+          /p:UapAppxPackageBuildMode=SideloadOnly `
+          /p:AppxPackageSigningEnabled=true `
+          /p:PackageCertificateThumbprint="${{ env.CERT_THUMBPRINT }}" `
+          /p:PackageCertificateKeyFile="$env:RUNNER_TEMP\SnapNote.pfx" `
+          /p:PackageCertificatePassword="SnapNote123!"
+      shell: pwsh
 
-    - name: Créer le lien de téléchargement
+    - name: Trouver le MSIX généré
+      run: |
+        $msix = Get-ChildItem -Recurse -Filter "*.msix" | Select-Object -First 1
+        echo "MSIX_PATH=$($msix.FullName)" >> $env:GITHUB_ENV
+        echo "Fichier trouvé : $($msix.FullName)"
+      shell: pwsh
+
+    - name: Exporter le certificat (.cer) pour l'utilisateur
+      run: |
+        $cert = Get-Item "Cert:\CurrentUser\My\${{ env.CERT_THUMBPRINT }}"
+        Export-Certificate -Cert $cert -FilePath "$env:RUNNER_TEMP\SnapNote.cer"
+      shell: pwsh
+
+    - name: Upload MSIX + certificat
       uses: actions/upload-artifact@v4
       with:
-        name: SnapNote-Application
-        path: bin/x64/Release/net8.0-windows10.0.19041.0/win-x64/publish/
+        name: SnapNote-MSIX
+        path: |
+          ${{ env.MSIX_PATH }}
+          ${{ runner.temp }}\SnapNote.cer

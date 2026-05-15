@@ -1,9 +1,7 @@
 name: Build SnapNote EXE
-
 on:
   push:
     branches: [ "main", "master" ]
-
 jobs:
   build:
     runs-on: windows-latest
@@ -23,11 +21,10 @@ jobs:
       run: dotnet restore SnapNote.csproj
 
     - name: Compilation Unique EXE
-      # Cette ligne force la création d'un seul fichier indépendant
       run: dotnet publish SnapNote.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishReadyToRun=true /p:Configuration=Release /p:Platform=x64
 
     - name: Créer le lien de téléchargement
       uses: actions/upload-artifact@v4
       with:
         name: SnapNote-Application
-        path: bin/x64/Release/net8.0-windows*/win-x64/publish/*.exe
+        path: bin/x64/Release/net8.0-windows10.0.19041.0/win-x64/publish/
